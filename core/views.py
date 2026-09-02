@@ -11,19 +11,18 @@ from django.shortcuts import render
 
 from .models import PromptLog
 from .serializers import PromptLogSerializer, PromptRequestSerializer
-from .services import generate_gemini_response, send_result_email
+from .services import generate_gemini_response, send_user_gmail_email
 
 
 logger = logging.getLogger(__name__)
 
-@login_required
 @ensure_csrf_cookie
 def home(request):
     return render(request, 'home.html')
 
 
 class GeneratePromptView(APIView):
-    """POST a prompt -> calls Gemini -> emails the logged-in user the result."""
+    """POST prompt & recipient_email -> calls Gemini -> sends email via user's Gmail OAuth."""
 
     permission_classes = [permissions.IsAuthenticated]
 
@@ -31,8 +30,13 @@ class GeneratePromptView(APIView):
         serializer = PromptRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         prompt = serializer.validated_data['prompt']
+        recipient_email = serializer.validated_data['recipient_email']
 
-        log = PromptLog.objects.create(user=request.user, prompt=prompt)
+        log = PromptLog.objects.create(
+            user=request.user,
+            prompt=prompt,
+            recipient_email=recipient_email,
+        )
 
         # 1. Call Gemini
         try:
@@ -48,18 +52,23 @@ class GeneratePromptView(APIView):
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
-        # 2. Email the result to the user (test user of the app)
+        # 2. Email the result via User's Gmail OAuth account
         try:
-            send_result_email(request.user.email, prompt, response_text)
+            send_user_gmail_email(
+                user=request.user,
+                to_email=recipient_email,
+                prompt=prompt,
+                response_text=response_text,
+            )
             log.email_sent = True
             log.save(update_fields=['email_sent'])
         except Exception as exc:
-            logger.exception("Email sending failed")
+            logger.exception("Gmail sending failed")
             log.error = str(exc)
             log.save(update_fields=['error'])
             data = PromptLogSerializer(log).data
             data['email_warning'] = str(exc)
-            # Still 200 - generation succeeded even though the email failed
+            # 200 OK because generation succeeded, but email sending had an issue
             return Response(data, status=status.HTTP_200_OK)
 
         return Response(PromptLogSerializer(log).data, status=status.HTTP_201_CREATED)

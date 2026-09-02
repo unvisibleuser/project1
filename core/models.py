@@ -13,6 +13,7 @@ class PromptLog(models.Model):
     )
     prompt = models.TextField()
     response = models.TextField(blank=True)
+    recipient_email = models.EmailField(blank=True)
     email_sent = models.BooleanField(default=False)
     error = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

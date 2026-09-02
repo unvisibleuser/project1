@@ -4,6 +4,6 @@ from .models import PromptLog
 
 @admin.register(PromptLog)
 class PromptLogAdmin(admin.ModelAdmin):
-    list_display = ['user', 'created_at', 'email_sent']
+    list_display = ['user', 'recipient_email', 'created_at', 'email_sent']
     list_filter = ['email_sent', 'created_at']
-    search_fields = ['user__username', 'user__email', 'prompt']
+    search_fields = ['user__username', 'user__email', 'recipient_email', 'prompt']

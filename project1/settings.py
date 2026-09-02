@@ -29,6 +29,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = [
     '.vercel.app',
     '127.0.0.1',
+    'localhost',
 ]
 
 
@@ -126,7 +127,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
@@ -153,8 +154,15 @@ SOCIALACCOUNT_PROVIDERS = {
             'secret': os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET', ''),
             'key': '',
         },
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
+        'SCOPE': [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/gmail.send',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+            'prompt': 'consent',
+        },
     }
 }
 
@@ -164,12 +172,7 @@ GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
 
 MAILERS = {
     'default': {
-        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
-        'HOST': 'smtp.gmail.com',
-        'PORT': 587,
-        'USE_TLS': True,
-        'USERNAME': os.environ.get('EMAIL_HOST_USER', ''),
-        'PASSWORD': os.environ.get('EMAIL_HOST_PASSWORD', ''),
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
-DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', '')
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
