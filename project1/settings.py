@@ -166,7 +166,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
-GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-2.5-flash')
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-3.6-flash')
 
 
 MAILERS = {
