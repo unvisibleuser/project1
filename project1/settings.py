@@ -160,7 +160,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'https://www.googleapis.com/auth/gmail.send',
         ],
         'AUTH_PARAMS': {
-            'access_type': 'online',
+            'prompt': 'select_account consent',
         },
     }
 }
