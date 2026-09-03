@@ -15,7 +15,10 @@ def get_gemini_client():
     return genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def generate_gemini_response(prompt: str) -> str:
+def generate_gemini_response(prompt: str, user=None) -> str:
+    user_email = getattr(user, 'email', '') if user else ''
+    if user_email:
+        prompt = f"{prompt}\n\nYou are sending this email from {user_email}."
 
     client = get_gemini_client()
     system_prompt = config('SYSTEM_PROMPT')

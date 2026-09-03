@@ -33,7 +33,7 @@ class GeneratePromptView(APIView):
 
         # 1. Call Gemini
         try:
-            response_text = generate_gemini_response(prompt)
+            response_text = generate_gemini_response(prompt, user=request.user)
         except Exception as exc:
             logger.exception("Gemini generation failed")
             return Response(
