@@ -4,5 +4,4 @@ from . import views
 urlpatterns = [
     path("", views.home, name="home"),
     path('generate/', views.GeneratePromptView.as_view(), name='generate-prompt'),
-    path('history/', views.PromptHistoryView.as_view(), name='prompt-history'),
 ]

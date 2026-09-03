@@ -30,7 +30,7 @@
   <label for="prompt">Prompt:</label>
   <textarea 
     id="prompt" 
-    placeholder="Ask Gemini anything (e.g. 'Summarize quantum computing in 3 bullet points')..."
+    placeholder="Just give it a prompt and see your mail on behalf of you!"
     rows="5"
   ></textarea>
 </div>
@@ -46,13 +46,6 @@
   <div id="resultContent" class="result-content"></div>
 </div>
 
-<div class="history-section">
-  <h3 style="margin-top: 0; color: #334155;">Recent History</h3>
-  <div id="historyList">
-    <p style="color: var(--text-muted); font-size: 0.9rem;">Loading history...</p>
-  </div>
-</div>
-
 <script>
 function getCookie(name) {
   const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
@@ -64,30 +57,6 @@ function showStatus(message, type) {
   box.className = 'status-box status-' + type;
   box.innerHTML = message;
   box.style.display = 'block';
-}
-
-async function loadHistory() {
-  const historyList = document.getElementById('historyList');
-  try {
-    const res = await fetch('/api/history/');
-    if (!res.ok) return;
-    const items = await res.json();
-    if (!items.length) {
-      historyList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No prompts sent yet.</p>';
-      return;
-    }
-    historyList.innerHTML = items.map(item => `
-      <div class="history-item">
-        <div class="history-meta">
-          <span><strong>To:</strong> ${item.recipient_email || 'N/A'}</span>
-          <span>${new Date(item.created_at).toLocaleString()} | <strong>${item.email_sent ? 'Sent' : 'Failed'}</strong></span>
-        </div>
-        <div><strong>Prompt:</strong> ${escapeHtml(item.prompt)}</div>
-      </div>
-    `).join('');
-  } catch (err) {
-    console.error('Failed to load history:', err);
-  }
 }
 
 function escapeHtml(str) {
@@ -143,7 +112,6 @@ async function submitPrompt() {
       }
       resultContent.textContent = data.response || '';
       resultCard.style.display = 'block';
-      loadHistory();
     }
   } catch (err) {
     showStatus('Request failed: ' + err.message, 'error');
@@ -151,14 +119,14 @@ async function submitPrompt() {
     btn.disabled = false;
   }
 }
-
-document.addEventListener('DOMContentLoaded', loadHistory);
 </script>
 
 {% else %}
 <div class="hero-card">
-  <h2>Welcome to Gemini Mailer</h2>
-  <p>Generate AI responses with Gemini and send them directly to any email address using your own Gmail account.</p>
+  <h2>Welcome to Mailer</h2>
+  <h3>Your AI mail assistant.</h3>
+  <br>
+  <p>You would have to give your Gmail to the developer first. Then after you will be able to auth.</p>
   <a href="{% provider_login_url 'google' %}" class="google-btn">
     <svg width="20" height="20" style="width: 20px; height: 20px; min-width: 20px; max-width: 20px; flex-shrink: 0;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
